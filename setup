@@ -1,0 +1,32 @@
+#!/bin/sh
+
+#TROUBLESHOOTING
+#Make sure no existing volumes with the names 'deezloader' and 'deezloader-ftp-passwd' exist
+#Make sure no other containers with the name 'deezloader_ftpd_server' exist
+
+#Setup new volumes
+
+#'deezloader' stores the downloaded music
+docker volume create deezloader
+#'deezloader-ftp...' stores the user login information for the ftp server
+docker volume create deezloader-ftp-passwd
+
+#Build the deezloader image
+docker build -t deezloader:latest -f ./Dockerfile .
+
+echo Running initial FTP user account creation...
+
+docker run -d --rm\
+	--name 'deezloader_ftpd_server' \
+	-p 21:21 -p 30000-30009:30000-30009 \
+	-v deezloader:/app -v ftp-passwd:/etc/pure-ftpd/passwd \
+	-e "PUBLICHOST=localhost " \
+	stilliard/pure-ftpd:hardened
+echo Enter the new FTP server user name
+read username
+
+echo Enter the new user password
+docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd $username -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3
+
+echo Setup finishing. Cleaning up...
+docker stop deezloader_ftpd_server
