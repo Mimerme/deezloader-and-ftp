@@ -22,13 +22,11 @@ docker run -d --rm\
 	-v deezloader:/app -v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
 	-e "PUBLICHOST=localhost " \
 	hareemca123/pure-ftpd
-echo Enter the new FTP server user name
-read username
-
 echo Enter the new user password
-docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd $username -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3
+docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd music -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3
 
 echo Setup finishing. Cleaning up...
 docker stop deezloader_ftpd_server
 
-echo Run the 'start' script to begin
+echo Run the 'start-arm' script to begin
+echo FTP username is music
