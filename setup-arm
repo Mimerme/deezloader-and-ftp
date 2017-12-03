@@ -19,7 +19,7 @@ echo Running initial FTP user account creation...
 docker run -d --rm\
 	--name 'deezloader_ftpd_server' \
 	-p 21:21 -p 30000-30009:30000-30009 \
-	-v deezloader:/app -v ftp-passwd:/etc/pure-ftpd/passwd \
+	-v deezloader:/app -v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
 	-e "PUBLICHOST=localhost " \
 	hareemca123/pure-ftpd
 echo Enter the new FTP server user name
