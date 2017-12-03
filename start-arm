@@ -1,0 +1,20 @@
+#!/bin/sh
+#Start the server
+
+echo Starting the deezloader server...
+docker run --rm -d\
+	-p 1720:1720 \
+	-v deezloader:/app \
+	--name "deezloader"\
+	deezloader:latest
+
+echo Starting the FTP server on port $fport...
+#Start the FTP server
+docker run -d --rm\
+        --name 'deezloader_ftpd_server' \
+        -p 21:21 -p 30000-30009:30000-30009 \
+        -v deezloader:/app -v ftp-passwd:/etc/pure-ftpd/passwd \
+        -e "PUBLICHOST=localhost " \
+        hareemca123/pure-ftpd
+
+echo Startup complete. Save music with localhost:1720. Transfer music with \'ftp localhost 21\' 
