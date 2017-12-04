@@ -26,5 +26,11 @@ docker run --rm -d\
 	--name "deezloader"\
 	deezloader:latest
 
+NEW_USER="docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd $username -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3"
+if [ $1 ] && [ $1 = "arm" ]
+then
+   echo "This is a workaround for ARM based systems"
+   $NEW_USER
+fi
 
 echo Startup complete. Save music with localhost:1720. Transfer music with \'ftp localhost 21\' 
