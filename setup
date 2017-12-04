@@ -4,29 +4,48 @@
 #Make sure no existing volumes with the names 'deezloader' and 'deezloader-ftp-passwd' exist
 #Make sure no other containers with the name 'deezloader_ftpd_server' exist
 
+#Check if argument is specified
+if [ $1 ] && [ $1 = "arm" ]
+then
+  echo "Running setup for ARM systems"
+  IMAGE='hareemca123/pure-ftpd'
+else
+  echo "Running setup for x86 systems"
+  IMAGE='stilliard/pure-ftpd:hardened'
+fi
+
 #Setup new volumes
 
 #'deezloader' stores the downloaded music
 docker volume create deezloader
 #'deezloader-ftp...' stores the user login information for the ftp server
 docker volume create deezloader-ftp-passwd
+docker volume create deezloader-ftp-users
 
 #Build the deezloader image
 docker build -t deezloader:latest -f ./Dockerfile .
 
 echo Running initial FTP user account creation...
 
-docker run -d --rm\
-	--name 'deezloader_ftpd_server' \
+CALL="docker run -d --rm \
+	--name deezloader_ftpd_server \
 	-p 21:21 -p 30000-30009:30000-30009 \
-	-v deezloader:/app -v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
-	-e "PUBLICHOST=localhost " \
-	stilliard/pure-ftpd:hardened
+	-v deezloader:/app \
+	-v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
+	-v deezloader-ftp-users:/home/ftpusers
+	-e \"PUBLICHOST=localhost\" $IMAGE"
+echo $CALL
+$CALL
+
+echo Enter the new username
+read username
+
 echo Enter the new user password
-docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd music -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3
+NEW_USER="docker exec -it deezloader_ftpd_server /usr/bin/pure-pw useradd $username -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /app/node_modules/deezloader-server/mp3"
+echo $NEW_USER
+$NEW_USER
 
 echo Setup finishing. Cleaning up...
 docker stop deezloader_ftpd_server
 
-echo Run the 'start' script to begin
-echo FTP username is music
+echo Run the \'start\' script to begin

@@ -1,5 +1,23 @@
 #!/bin/sh
 #Start the server
+if [ $1 ] && [ $1 = "arm" ]
+then
+  echo "Starting for ARM systems"
+  IMAGE='hareemca123/pure-ftpd'
+else
+  echo "Starting for x86 systems"
+  IMAGE='stilliard/pure-ftpd:hardened'
+fi
+
+echo Starting FTP server...
+CALL="docker run -d --rm \
+	--name deezloader_ftpd_server \
+	-p 21:21 -p 30000-30009:30000-30009 \
+	-v deezloader:/app \
+	-v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
+	-v deezloader-ftp-users:/home/ftpusers
+	-e \"PUBLICHOST=localhost\" $IMAGE"
+$CALL
 
 echo Starting the deezloader server...
 docker run --rm -d\
@@ -8,13 +26,5 @@ docker run --rm -d\
 	--name "deezloader"\
 	deezloader:latest
 
-echo Starting the FTP server on port $fport...
-#Start the FTP server
-docker run -d --rm\
-        --name 'deezloader_ftpd_server' \
-        -p 21:21 -p 30000-30009:30000-30009 \
-        -v deezloader:/app -v ftp-passwd:/etc/pure-ftpd/passwd \
-        -e "PUBLICHOST=localhost " \
-        stilliard/pure-ftpd:hardened
 
 echo Startup complete. Save music with localhost:1720. Transfer music with \'ftp localhost 21\' 
