@@ -13,9 +13,9 @@ echo Starting FTP server...
 CALL="docker run -d --rm \
 	--name deezloader_ftpd_server \
 	-p 21:21 -p 30000-30009:30000-30009 \
-	-v deezloader:/app \
-	-v deezloader-ftp-passwd:/etc/pure-ftpd/passwd \
-	-v deezloader-ftp-users:/home/ftpusers
+	-v deezloader:/app:rw \
+	-v deezloader-ftp-passwd:/etc/pure-ftpd/passwd:rw \
+	-v deezloader-ftp-users:/home/ftpusers:rw \
 	-e \"PUBLICHOST=localhost\" $IMAGE"
 $CALL
 
